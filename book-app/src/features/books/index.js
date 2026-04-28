@@ -1,2 +1,3 @@
 export { default as Books } from './components/Books';
-export { getAllBooks, deleteBook } from './services/bookService';
+export { default as BookForm } from './components/BookForm';
+export { getAllBooks, getBookById, createBook, updateBook, deleteBook } from './services/bookService';
