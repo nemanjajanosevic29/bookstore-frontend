@@ -1,0 +1,1334 @@
+﻿--------------------------------------------------------------
+FILE: \book-app\index.html
+--------------------------------------------------------------
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React Vite Micro App</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/index.jsx"></script>
+  </body>
+</html>
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\App.jsx
+--------------------------------------------------------------
+import React from 'react';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import Header from './core/layout/Header.jsx';
+import Footer from './core/layout/Footer.jsx';
+import { Publishers } from './features/publishers/index.js';
+import { Books, BookForm } from './features/books/index.js';
+import AuthorsPagination from './features/authors/components/AuthorsPagination.jsx';
+import './styles.scss';
+
+export default function App() {
+    return (
+        <BrowserRouter>
+            <div className="app-wrapper">
+                <Header />
+                <main className="main-content">
+                    <Routes>
+                        <Route path="/" element={<Outlet />}>
+                            <Route index element={
+                                <div className="welcome-page">
+                                    <h1>Welcome to our bookstore!</h1>
+                                    <p>Discover your next favorite book</p>
+                                </div>
+                            } />
+                            <Route path="publishers" element={<Publishers />} />
+                            <Route path="books" element={<Books />} />
+                            <Route path="books/new" element={<BookForm />} />
+                            <Route path="books/edit/:id" element={<BookForm />} />
+                            <Route path="authors/pagination" element={<AuthorsPagination />} />
+                        </Route>
+                    </Routes>
+                </main>
+                <Footer />
+            </div>
+        </BrowserRouter>
+    );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\core\layout\Footer.jsx
+--------------------------------------------------------------
+import React from 'react';
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="footer-inner">
+          <span>Bookstore App</span>
+          <span className="footer-sep">Â·</span>
+          <span>Advanced Web Development</span>
+          <span className="footer-sep">Â·</span>
+          <span>{new Date().getFullYear()}</span>
+        </div>
+    </footer>
+  );
+}
+
+export default Footer;
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\core\layout\footer.scss
+--------------------------------------------------------------
+.footer {
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+
+.footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 40px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.footer-sep {
+  color: var(--border);
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\core\layout\Header.jsx
+--------------------------------------------------------------
+import React from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import './header.scss';
+
+
+export default function Header() {
+  const location = useLocation();
+
+  const navLinks = [
+    { to: '/publishers', label: 'Publishers' },
+    { to: '/books', label: 'Books' },
+    { to: '/books/new', label: 'Create book' },
+  ];
+
+  return (
+    <>
+      <header className="header">
+        <div className="header-inner">
+          <div className="logo">
+            <span className="logo-icon">ðŸ“š</span>
+            <span className="logo-name">Bookstore</span>
+          </div>
+          <nav className="nav">
+            {navLinks.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`nav-link ${location.pathname === to ? 'active' : ''}`}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <Outlet />
+      </main>
+    </>
+  );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\core\layout\header.scss
+--------------------------------------------------------------
+.header {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 40px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+
+  .logo-icon {
+    font-size: 1.3rem;
+  }
+
+  .logo-name {
+    font-family: 'Merriweather', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--brown);
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-link {
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--brown);
+    background: var(--brown-dim);
+  }
+
+  &.active {
+    color: var(--brown);
+    background: var(--brown-dim);
+    border-color: rgba(92, 61, 46, 0.15);
+    font-weight: 500;
+  }
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  background: #fff;
+}
+
+.footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 18px 40px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.footer-sep {
+  color: var(--border);
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\core\services\axiosConfig.js
+--------------------------------------------------------------
+import axios from 'axios';
+
+let AxiosConfig = axios.create({
+  baseURL: 'http://localhost:8351/api',
+});
+
+export default AxiosConfig;
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\authors\AuthorsServices.js
+--------------------------------------------------------------
+import AxiosConfig from '../../../core/services/axiosConfig.js';
+
+export const fetchAuthorsPage = async (page) => {
+    try {
+        const response = await AxiosConfig.get('/Authors/paging?page=' + page);
+        return response.data;
+    } catch (error) {
+        throw new Error('Failed to fetch authors page');
+    }
+};
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\authors\components\AuthorsPagination.jsx
+--------------------------------------------------------------
+import React, { useEffect, useState } from 'react';
+import {
+    Table, TableBody, TableCell, TableContainer,
+    TableFooter, TablePagination, TableRow, TableHead, Paper
+} from '@mui/material';
+import TablePaginationActions from './TablePaginationActions.jsx';
+import { fetchAuthorsPage } from '../AuthorsServices.js';
+import './authors-pagination.scss';
+
+export default function AuthorsPagination() {
+    const [authors, setAuthors] = useState([]);
+    const [page, setPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [loading, setLoading] = useState(true);
+    const rowsPerPage = 4;
+
+    const loadPage = async (pageNumber) => {
+        try {
+            setLoading(true);
+            const data = await fetchAuthorsPage(pageNumber + 1);
+            setAuthors(data.items);
+            setTotalCount(data.count);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            setErrorMsg('DoÅ¡lo je do greÅ¡ke pri uÄitavanju autora.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadPage(page);
+    }, [page]);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    return (
+        <div className="page-wrapper">
+            <h1 className="page-title">Authors</h1>
+            <p className="page-subtitle">
+                Svi autori â€” stranica {page + 1} od {totalPages}
+            </p>
+
+            {errorMsg && <div className="error-msg">{errorMsg}</div>}
+
+            {loading ? (
+                <div className="loading-state">
+                    <div className="spinner" />
+                    <span>UÄitavanje...</span>
+                </div>
+            ) : (
+                <div className="animate-in">
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Full Name</TableCell>
+                                    <TableCell>Biography</TableCell>
+                                    <TableCell>Date of Birth</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {authors.map((author) => (
+                                    <TableRow key={author.id}>
+                                        <TableCell>{author.fullName}</TableCell>
+                                        <TableCell>{author.biography}</TableCell>
+                                        <TableCell>
+                                            {new Date(author.dateOfBirth).toLocaleDateString('sr-RS')}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        rowsPerPageOptions={[rowsPerPage]}
+                                        colSpan={3}
+                                        count={totalCount}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        ActionsComponent={TablePaginationActions}
+                                    />
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </TableContainer>
+                </div>
+            )}
+        </div>
+    );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\authors\components\authors-pagination.scss
+--------------------------------------------------------------
+.authors-pagination {
+    .page-info {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        margin-bottom: 16px;
+    }
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\authors\components\TablePaginationActions.jsx
+--------------------------------------------------------------
+import React from 'react';
+import { Box, IconButton } from '@mui/material';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
+import LastPageIcon from '@mui/icons-material/LastPage';
+
+export default function TablePaginationActions({ count, page, rowsPerPage, onPageChange }) {
+    const handleFirstPageButtonClick = (event) => onPageChange(event, 0);
+    const handleBackButtonClick = (event) => onPageChange(event, page - 1);
+    const handleNextButtonClick = (event) => onPageChange(event, page + 1);
+    const handleLastPageButtonClick = (event) =>
+        onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
+
+    return (
+        <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+            <IconButton onClick={handleFirstPageButtonClick} disabled={page === 0}>
+                <FirstPageIcon />
+            </IconButton>
+            <IconButton onClick={handleBackButtonClick} disabled={page === 0}>
+                <KeyboardArrowLeft />
+            </IconButton>
+            <IconButton
+                onClick={handleNextButtonClick}
+                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+            >
+                <KeyboardArrowRight />
+            </IconButton>
+            <IconButton
+                onClick={handleLastPageButtonClick}
+                disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+            >
+                <LastPageIcon />
+            </IconButton>
+        </Box>
+    );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\books\components\BookForm.jsx
+--------------------------------------------------------------
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { getBookById, createBook, updateBook } from '../services/bookService.js';
+import { getAllPublishers } from '../../services/publisherService.js';
+import AxiosConfig from '../../../core/services/axiosConfig.js';
+import './book-form.scss';
+
+export default function BookForm() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = Boolean(id);
+
+  const [publishers, setPublishers] = useState([]);
+  const [authors, setAuthors] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const pubs = await getAllPublishers();
+        setPublishers(pubs);
+
+        const authorsRes = await AxiosConfig.get('/Authors');
+        setAuthors(authorsRes.data);
+
+        if (isEditMode) {
+          const book = await getBookById(id);
+          reset({
+            title: book.title,
+            isbn: book.isbn,
+            pageCount: book.pageCount,
+            publishedDate: book.publishedDate?.substring(0, 10),
+            authorId: book.authorId,
+            publisherId: book.publisherId,
+          });
+        }
+      } catch (error) {
+        setErrorMsg('GreÅ¡ka pri uÄitavanju podataka.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [id]);
+
+  const onSubmit = async (data) => {
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      const payload = {
+        ...data,
+        id: isEditMode ? parseInt(id) : 0,
+        pageCount: parseInt(data.pageCount),
+        authorId: parseInt(data.authorId),
+        publisherId: parseInt(data.publisherId),
+      };
+
+      if (isEditMode) {
+        await updateBook(id, payload);
+      } else {
+        await createBook(payload);
+      }
+
+      navigate('/books');
+    } catch (error) {
+      setErrorMsg('GreÅ¡ka pri Äuvanju knjige. Proverite unesene podatke.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="page-wrapper">
+        <div className="loading-state">
+          <div className="spinner" />
+          <span>UÄitavanje...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-wrapper">
+      <div className="form-breadcrumb">
+        <button className="breadcrumb-back" onClick={() => navigate('/books')}>
+          â† Books
+        </button>
+        <span className="breadcrumb-sep">/</span>
+        <span>{isEditMode ? 'Edit book' : 'New book'}</span>
+      </div>
+
+      <h1 className="page-title">
+        {isEditMode ? 'Edit book' : 'Create book'}
+      </h1>
+      <p className="page-subtitle">
+        {isEditMode ? 'Izmeni podatke o knjizi.' : 'Popuni podatke za novu knjigu.'}
+      </p>
+
+      {errorMsg && <div className="error-msg">{errorMsg}</div>}
+
+      <div className="form-card animate-in">
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+
+          <div className="form-group">
+            <label>Title *</label>
+            <input
+              placeholder="npr. ZloÄin i kazna"
+              {...register('title', { required: 'Naslov je obavezan' })}
+            />
+            {errors.title && <p className="field-error">{errors.title.message}</p>}
+          </div>
+
+          <div className="form-group">
+            <label>ISBN *</label>
+            <input
+              placeholder="npr. 978-3-16-148410-0"
+              {...register('isbn', { required: 'ISBN je obavezan' })}
+            />
+            {errors.isbn && <p className="field-error">{errors.isbn.message}</p>}
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Page Count *</label>
+              <input
+                type="number"
+                placeholder="npr. 320"
+                {...register('pageCount', {
+                  required: 'Broj strana je obavezan',
+                  min: { value: 1, message: 'Min 1 strana' }
+                })}
+              />
+              {errors.pageCount && <p className="field-error">{errors.pageCount.message}</p>}
+            </div>
+
+            <div className="form-group">
+              <label>Published Date *</label>
+              <input
+                type="date"
+                {...register('publishedDate', { required: 'Datum je obavezan' })}
+              />
+              {errors.publishedDate && <p className="field-error">{errors.publishedDate.message}</p>}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Author *</label>
+            <select {...register('authorId', { required: 'Autor je obavezan' })}>
+              <option value="">â€” Izaberi autora â€”</option>
+              {authors.map(a => (
+                <option key={a.id} value={a.id}>{a.fullName}</option>
+              ))}
+            </select>
+            {errors.authorId && <p className="field-error">{errors.authorId.message}</p>}
+          </div>
+
+          <div className="form-group">
+            <label>Publisher *</label>
+            <select {...register('publisherId', { required: 'IzdavaÄ je obavezan' })}>
+              <option value="">â€” Izaberi izdavaÄa â€”</option>
+              {publishers.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+            {errors.publisherId && <p className="field-error">{errors.publisherId.message}</p>}
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'ÄŒuvanje...' : isEditMode ? 'Save changes' : 'Create book'}
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => navigate('/books')}>
+              Cancel
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\books\components\book-form.scss
+--------------------------------------------------------------
+.form-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.breadcrumb-back {
+  background: none;
+  border: none;
+  color: var(--brown);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.breadcrumb-sep {
+  color: var(--border);
+}
+
+.form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  max-width: 640px;
+  box-shadow: var(--shadow);
+}
+
+.form-group {
+  margin-bottom: 22px;
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+    font-weight: 500;
+  }
+
+  input,
+  select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &:focus {
+      border-color: var(--brown-light);
+    }
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a89b93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  .field-error {
+    color: var(--red);
+    font-size: 0.8rem;
+    margin-top: 5px;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\books\components\Books.jsx
+--------------------------------------------------------------
+import React from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getAllBooks, deleteBook } from '../services/bookService.js';
+import './books.scss';
+
+export default function Books() {
+  const [books, setBooks] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const fetchData = async () => {
+    try {
+      setBooks(await getAllBooks());
+    } catch (error) {
+      setErrorMsg('DoÅ¡lo je do greÅ¡ke pri uÄitavanju knjiga.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteBook(id);
+      setBooks(prev => prev.filter(b => b.id !== id));
+    } catch (error) {
+      setErrorMsg('GreÅ¡ka pri brisanju knjige.');
+    }
+  };
+
+  return (
+    <div className="page-wrapper">
+      <div className="books-header">
+        <div>
+          <h1 className="page-title">Books</h1>
+          <p className="page-subtitle">Sve knjige u katalogu</p>
+        </div>
+        <button className="btn btn-primary" onClick={() => navigate('/books/new')}>
+          + Add book
+        </button>
+      </div>
+
+      {errorMsg && <div className="error-msg">{errorMsg}</div>}
+
+      {loading ? (
+        <div className="loading-state">
+          <div className="spinner" />
+          <span>UÄitavanje...</span>
+        </div>
+      ) : books.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">ðŸ“š</div>
+          <p>Nema knjiga u katalogu.</p>
+        </div>
+      ) : (
+        <div className="animate-in">
+          <div className="table-meta">
+            <span className="badge">{books.length} knjiga</span>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publisher</th>
+                <th>ISBN</th>
+                <th>Pages</th>
+                <th>Published</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {books.map(book => (
+                <tr key={book.id}>
+                  <td className="book-title-cell">{book.title}</td>
+                  <td className="book-author-cell">
+                    {book.author?.fullName || <span className="no-data">â€”</span>}
+                  </td>
+                  <td>{book.publisher?.name || <span className="no-data">â€”</span>}</td>
+                  <td>{book.isbn}</td>
+                  <td>{book.pageCount}</td>
+                  <td>{new Date(book.publishedDate).toLocaleDateString('sr-RS')}</td>
+                  <td className="actions-cell">
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => navigate(`/books/edit/${book.id}`)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleDelete(book.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\books\components\books.scss
+--------------------------------------------------------------
+.books-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.book-title-cell {
+  font-family: 'Merriweather', serif;
+  font-size: 0.92rem;
+  color: var(--text-primary);
+}
+
+.book-author-cell {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.no-data {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\books\index.js
+--------------------------------------------------------------
+export { default as Books } from './components/Books';
+export { default as BookForm } from './components/BookForm';
+export { getAllBooks, getBookById, createBook, updateBook, deleteBook } from './services/bookService';
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\books\services\bookService.js
+--------------------------------------------------------------
+import AxiosConfig from '../../../core/services/axiosConfig.js';
+
+const RESOURCE = '/Books';
+
+export async function getAllBooks() {
+  const response = await AxiosConfig.get(RESOURCE);
+  return response.data;
+}
+
+export async function deleteBook(id) {
+  const response = await AxiosConfig.delete(`${RESOURCE}/${id}`);
+  return response.data;
+}
+
+export async function getBookById(id) {
+  const response = await AxiosConfig.get(`${RESOURCE}/${id}`);
+  return response.data;
+}
+
+export async function createBook(book) {
+  const response = await AxiosConfig.post(RESOURCE, book);
+  return response.data;
+}
+
+export async function updateBook(id, book) {
+  const response = await AxiosConfig.put(`${RESOURCE}/${id}`, book);
+  return response.data;
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\publishers\components\Publishers.jsx
+--------------------------------------------------------------
+import { useState, useEffect } from 'react';
+import { getAllPublishers } from '../../services/publisherService.js';
+import './publishers.scss';
+import React from 'react';
+
+export default function Publishers() {
+  const [publishers, setPublishers] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      setPublishers(await getAllPublishers());
+    } catch (error) {
+      setErrorMsg('DoÅ¡lo je do greÅ¡ke pri uÄitavanju izdavaÄa.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  return (
+    <div className="page-wrapper">
+      <h1 className="page-title">Publishers</h1>
+      <p className="page-subtitle">Svi registrovani izdavaÄi</p>
+
+      {errorMsg && <div className="error-msg">{errorMsg}</div>}
+
+      {loading ? (
+        <div className="loading-state">
+          <div className="spinner" />
+          <span>UÄitavanje...</span>
+        </div>
+      ) : publishers.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">ðŸ›ï¸</div>
+          <p>Nema registrovanih izdavaÄa.</p>
+        </div>
+      ) : (
+        <div className="animate-in">
+          <div className="table-meta">
+            <span className="badge">{publishers.length} izdavaÄa</span>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Website</th>
+              </tr>
+            </thead>
+            <tbody>
+              {publishers.map(pub => (
+                <tr key={pub.id}>
+                  <td className="publisher-name">{pub.name}</td>
+                  <td>{pub.address}</td>
+                  <td>
+                    {pub.website
+                      ? <a href={pub.website} target="_blank" rel="noreferrer">{pub.website}</a>
+                      : <span className="no-data">â€”</span>
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\publishers\components\publishers.scss
+--------------------------------------------------------------
+.publisher-name {
+  font-family: 'Merriweather', serif;
+  font-size: 0.95rem;
+  color: var(--brown);
+}
+
+.no-data {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\publishers\index.js
+--------------------------------------------------------------
+export { default as Publishers } from './components/Publishers';
+export { getAllPublishers } from '../services/publisherService';
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\features\services\publisherService.js
+--------------------------------------------------------------
+import AxiosConfig from '../../core/services/axiosConfig.js';
+
+const RESOURCE = '/Publishers';
+
+export async function getAllPublishers() {
+  const response = await AxiosConfig.get(RESOURCE);
+  return response.data;
+}
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\index.jsx
+--------------------------------------------------------------
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+
+--------------------------------------------------------------
+FILE: \book-app\src\styles.scss
+--------------------------------------------------------------
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,300&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #f8f6f2;
+  --bg-white: #ffffff;
+  --bg-card: #fffef9;
+  --border: #e2ddd6;
+  --brown: #5c3d2e;
+  --brown-light: #8b6555;
+  --brown-dim: rgba(92, 61, 46, 0.08);
+  --text-primary: #1a1410;
+  --text-secondary: #6b5c52;
+  --text-muted: #a89b93;
+  --red: #c0392b;
+  --red-dim: rgba(192, 57, 43, 0.08);
+  --radius: 6px;
+  --radius-lg: 12px;
+  --shadow: 0 2px 12px rgba(92, 61, 46, 0.08);
+  --shadow-lg: 0 4px 24px rgba(92, 61, 46, 0.14);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  font-family: 'Merriweather', serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-wrapper {
+  flex: 1;
+  padding: 48px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-title {
+  font-size: 2rem;
+  color: var(--brown);
+  margin-bottom: 6px;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 32px;
+}
+
+.error-msg {
+  background: var(--red-dim);
+  border: 1px solid rgba(192, 57, 43, 0.25);
+  color: var(--red);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+
+  thead tr {
+    background: var(--brown-dim);
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th {
+    padding: 12px 18px;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--brown-dim);
+    }
+  }
+
+  tbody td {
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+  }
+}
+
+.table-meta {
+  margin-bottom: 14px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--brown-dim);
+  color: var(--brown-light);
+  border: 1px solid rgba(92, 61, 46, 0.15);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+
+  &-primary {
+    background: var(--brown);
+    color: #fff;
+
+    &:hover {
+      background: var(--brown-light);
+    }
+  }
+
+  &-danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(192, 57, 43, 0.2);
+
+    &:hover {
+      background: rgba(192, 57, 43, 0.15);
+    }
+  }
+
+  &-secondary {
+    background: transparent;
+    color: var(--brown);
+    border: 1px solid var(--brown);
+
+    &:hover {
+      background: var(--brown-dim);
+    }
+  }
+
+  &-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+
+    &:hover {
+      border-color: var(--brown-light);
+      color: var(--text-primary);
+    }
+  }
+
+  &-sm {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 0;
+  gap: 14px;
+  color: var(--text-muted);
+
+  .spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--brown);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 0;
+  color: var(--text-muted);
+  gap: 8px;
+
+  .empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;           
+}
+
+.main-content {
+  flex: 1;                    
+}
+
+.welcome-page {
+  min-height: 70vh;                    
+  display: flex;
+  flex-direction: column;
+  align-items: center;                 
+  justify-content: center;             
+  text-align: center;
+  padding: 40px 20px;
+
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: 1.4rem;
+    color: #555;
+    max-width: 600px;
+  }
+}
+
+
