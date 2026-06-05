@@ -5,6 +5,7 @@ import Footer from './core/layout/Footer.jsx';
 import { Publishers } from './features/publishers/index.js';
 import { Books, BookForm } from './features/books/index.js';
 import AuthorsPagination from './features/authors/components/AuthorsPagination.jsx';
+import SortPublishers from './features/publishers/components/SortPublishers.jsx';
 import './styles.scss';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
                                 </div>
                             } />
                             <Route path="publishers" element={<Publishers />} />
+                            <Route path="publishers/sort" element={<SortPublishers />} />
                             <Route path="books" element={<Books />} />
                             <Route path="books/new" element={<BookForm />} />
                             <Route path="books/edit/:id" element={<BookForm />} />
